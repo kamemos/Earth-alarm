@@ -1,0 +1,219 @@
+<script src="https://cdn.netpie.io/microgear.js"></script>
+
+<script>
+
+const APPID = "random0";
+const KEY = "OBWwsgWlYGrU3vB";
+const SECRET = "AlC9DrSyTastaEW6CuqwB90kN";
+
+const ALIAS = "DigitalOUTPUT_HTML_web";     //  ชื่อตัวเอง
+const thing1 = "NodeMCU1";
+
+
+  function switchPress(logic){
+    if(logic == 1 ){
+      microgear.chat(thing1,"ON");
+    }else if(logic == 0 ){
+      microgear.chat(thing1,"OFF");
+    }
+  }
+
+  var microgear = Microgear.create({
+    key: KEY,
+    secret: SECRET,
+    alias : ALIAS
+  });
+
+
+  microgear.on('message', function(topic,data) {
+    console.log(data);
+    var packet = data.toString();
+    var data = packet.split("/");
+    console.log(data);
+    document.getElementById("x").innerHTML = "x = ".concat(data[0]);
+    document.getElementById("y").innerHTML = "y = ".concat(data[1]);
+    document.getElementById("z").innerHTML = "z = ".concat(data[2]);
+    document.getElementById("x_avg").innerHTML = "x_avg = ".concat(data[3]);
+    document.getElementById("y_avg").innerHTML = "y_avg = ".concat(data[4]);
+    document.getElementById("status").innerHTML = "status = ".concat(data[5]);
+    var chart = AmCharts.makeChart("chartdiv",
+  {
+      "type": "serial",
+      "theme": "light",
+      "dataProvider": [{
+          "name": "X",
+          "points": Math.abs(parseInt(data[0])),
+          "color": "#7F8DA9",
+      
+      }, {
+          "name": "Y",
+          "points": Math.abs(parseInt(data[1])),
+          "color": "#FEC514",
+      
+      }, {
+          "name": "Z",
+          "points": Math.abs(parseInt(data[2])),
+          "color": "#DB4C3C",
+          
+      }],
+      "valueAxes": [{
+          "maximum": 1000,
+          "minimum": 0,
+          "axisAlpha": 0,
+          "dashLength": 3,
+          "position": "left"
+      }],
+      "startDuration": 1,
+      "graphs": [{
+          "balloonText": "<span style='font-size:13px;'>[[category]]: <b>[[value]]</b></span>",
+          "bulletOffset": 10,
+          "bulletSize": 52,
+          "colorField": "color",
+          "cornerRadiusTop": 8,
+          "customBulletField": "bullet",
+          "fillAlphas": 0.8,
+          "lineAlpha": 0,
+          "type": "column",
+          "valueField": "points"
+      }],
+      "marginTop": 0,
+      "marginRight": 0,
+      "marginLeft": 0,
+      "marginBottom": 0,
+      "autoMargins": false,
+      "categoryField": "name",
+      "categoryAxis": {
+          "axisAlpha": 0,
+          "gridAlpha": 0,
+          "inside": true,
+          "tickLength": 0
+      },
+      "export": {
+        "enabled": true
+       }
+  });
+  });
+
+
+  microgear.on('connected', function() {
+    microgear.setAlias(ALIAS);
+    document.getElementById("connected_NETPIE").innerHTML = "Connected to NETPIE"
+  });
+
+  microgear.on('present', function(event) {
+    console.log(event);
+  });
+
+  microgear.on('absent', function(event) {
+    console.log(event);
+  });
+
+  microgear.resettoken(function(err) {
+    microgear.connect(APPID);
+  });
+
+</script>
+<style>
+  #chartdiv {
+    width	: 100%;
+    height	: 500px;
+  }								
+  </style>
+  
+  <!-- Resources -->
+  <script src="https://www.amcharts.com/lib/3/amcharts.js"></script>
+  <script src="https://www.amcharts.com/lib/3/serial.js"></script>
+  <script src="https://www.amcharts.com/lib/3/plugins/export/export.min.js"></script>
+  <link rel="stylesheet" href="https://www.amcharts.com/lib/3/plugins/export/export.css" type="text/css" media="all" />
+  <script src="https://www.amcharts.com/lib/3/themes/light.js"></script>
+  
+  <!-- Chart code -->
+  <script>
+  var chart = AmCharts.makeChart("chartdiv",
+  {
+      "type": "serial",
+      "theme": "light",
+      "dataProvider": [{
+          "name": "X",
+          "points": 100,
+          "color": "#7F8DA9",
+      
+      }, {
+          "name": "Y",
+          "points": 100,
+          "color": "#FEC514",
+      
+      }, {
+          "name": "Z",
+          "points": 100,
+          "color": "#DB4C3C",
+          
+      }],
+      "valueAxes": [{
+          "maximum": 1000,
+          "minimum": 0,
+          "axisAlpha": 0,
+          "dashLength": 3,
+          "position": "left"
+      }],
+      "startDuration": 1,
+      "graphs": [{
+          "balloonText": "<span style='font-size:13px;'>[[category]]: <b>[[value]]</b></span>",
+          "bulletOffset": 10,
+          "bulletSize": 52,
+          "colorField": "color",
+          "cornerRadiusTop": 8,
+          "customBulletField": "bullet",
+          "fillAlphas": 0.8,
+          "lineAlpha": 0,
+          "type": "column",
+          "valueField": "points"
+      }],
+      "marginTop": 0,
+      "marginRight": 0,
+      "marginLeft": 0,
+      "marginBottom": 0,
+      "autoMargins": false,
+      "categoryField": "name",
+      "categoryAxis": {
+          "axisAlpha": 0,
+          "gridAlpha": 0,
+          "inside": true,
+          "tickLength": 0
+      },
+      "export": {
+        "enabled": true
+       }
+  });
+  </script>
+
+
+<body class="container">
+  <center>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous">
+    <div class="alert alert-dark" role="alert">
+      <h1>DETECTION ALARM</h1>
+      <h1 id="connected_NETPIE" hidden>DETECTION ALARM</h1>
+      <button type="button" class="btn btn-danger" onclick="switchPress(0)">STOP ALARM</button>
+    </div>
+    <!-- <button type="button" onclick="switchPress(1)">Turn ON</button> -->
+
+    <div class="alert alert-primary" role="alert">
+      <h1 id="x">x</h1>
+    </div>
+    <div class="alert alert-success" role="alert">
+      <h1 id="y">y</h1>
+    </div>
+    <div class="alert alert-info" role="alert">
+      <h1 id="z">z</h1>
+    </div>
+    <div class="alert alert-secondary" role="alert">
+      <h1 id="x_avg">avg</h1>
+      <h1 id="y_avg">avg</h1>
+      <div id="chartdiv"></div>
+    </div>
+    <div class="alert alert-dark" role="alert">
+      <h1 id="status">status</h1>
+    </div>
+  </center>
+</body>
