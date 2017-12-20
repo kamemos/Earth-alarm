@@ -44,8 +44,8 @@
 #define MAGNITUDE_THRESHLOD 300
 #define DECAY_PERIOD 		100
 #define TRIGGER_THRESHOLD 	400
-#define DECAY 				counter-=1
-#define QUAKE				counter+=45
+#define DECAY 				detection_index -= 1
+#define QUAKE				detection_index += 45
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
@@ -59,20 +59,20 @@ UART_HandleTypeDef huart2;
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
-int16_t xyz[3]={0};
-int counter=0;
-int8_t signal=0;
-int Timecounter=0;
-int delayTime=0;
-int8_t flag = 0;
-int16_t avgx[100];
-int16_t avgy[100];
-int16_t avgcounter=0;
+int8_t 		start = 0;
+int16_t 	userBtnStability = 0;
+int16_t 	xyz[3]={0};
+int8_t 		state=0;
+int 		detection_index=0;
+int8_t 		alert_signal=0;
+int 		Timecounter=0;
+int 		delayTime=0;
+int16_t 	buffer_x[100];
+int16_t 	buffer_y[100];
+int16_t 	buffer_index=0;
 struct _calibrate{
 	int16_t x,y,z;
-}calibrate;
-int8_t state=0;
-int16_t buttonCount = 0;
+} calibrate;
 
 /* USER CODE END PV */
 
@@ -92,13 +92,13 @@ static void MX_USART2_UART_Init(void);
 /* USER CODE BEGIN 0 */
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
-	signal=0;
-	counter=0;
+	alert_signal=0;
+	detection_index=0;
 }
-int16_t cal_avg(int16_t* avg){
+int16_t cal_avg(int16_t* buf){
 	int sum=0;
 	for(int i = 0 ;i < 100 ;i++){
-		sum += avg[i];
+		sum += buf[i];
 	}
 	return sum/100;
 }
@@ -151,32 +151,32 @@ int main(void)
   /* USER CODE BEGIN 3 */
 	  BSP_ACCELERO_GetXYZ(xyz);
 	  if(HAL_GPIO_ReadPin(GPIOA,GPIO_PIN_0)==1)
-	  	buttonCount += 1;
+	  	userBtnStability += 1;
 	  else
-		buttonCount = 0;
-	  if(buttonCount==10){
-		flag ^= 1;
-		signal = 0;
+		userBtnStability = 0;
+	  if(userBtnStability==10){
+		start ^= 1;
+		alert_signal = 0;
 		calibrate.x = xyz[0];
 		calibrate.y = xyz[1];
 	  	calibrate.z = xyz[2];
 	  }
-	  if(flag==0){continue;}
+	  if(start==0){continue;}
 
 	  xyz[0] -= calibrate.x;
 	  xyz[1] -= calibrate.y;
 	  xyz[2] -= calibrate.z;
-	  if(delayTime%500 == 0){
-		avgx[avgcounter]=xyz[0];
-		avgy[avgcounter]=xyz[1];
-		avgcounter++;
+	  if(delayTime%200 == 0){
+		buffer_x[buffer_index]=xyz[0];
+		buffer_y[buffer_index]=xyz[1];
+		buffer_index++;
 	  }
-  	  if(avgcounter == 99){
-	  	avgcounter=0;
-		int send_x=cal_avg(avgx);
-		int send_y=cal_avg(avgy);
+  	  if(buffer_index == 99){
+	  	buffer_index=0;
+		int send_x=cal_avg(buffer_x);
+		int send_y=cal_avg(buffer_y);
 		char s[256];
-		sprintf(s,"%d/%d/%d/%d/%d/%d\r\n",xyz[0],xyz[1],xyz[2],send_x,send_y,signal);
+		sprintf(s,"%d/%d/%d/%d/%d/%d\r\n",xyz[0],xyz[1],xyz[2],send_x,send_y,alert_signal);
 		HAL_UART_Transmit(&huart2,s,strlen(s),5000);
 	  }
 	  if(abs(xyz[0])>abs(xyz[1])){
@@ -238,17 +238,17 @@ int main(void)
 	 if(Timecounter % DECAY_PERIOD == 0){
 	  	 DECAY;
 	 }
-	 if(counter>TRIGGER_THRESHOLD){
-		 signal=1;
-	  	 counter=TRIGGER_THRESHOLD;
+	 if(detection_index>TRIGGER_THRESHOLD){
+		 alert_signal=1;
+	  	 detection_index=TRIGGER_THRESHOLD;
 	  }
-	  if(counter<=0){
-		 counter=0;
+	  if(detection_index<=0){
+		 detection_index=0;
 	  }
 	  if(Timecounter==1000){
 		  Timecounter=0;
 	  }
-	  if(signal && (Timecounter&2047)==0){
+	  if(alert_signal && (Timecounter&2047)==0){
 		  HAL_GPIO_TogglePin(GPIOE,GPIO_PIN_8);
 	  }
 	  else{
