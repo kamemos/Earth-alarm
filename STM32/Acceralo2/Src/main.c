@@ -61,16 +61,18 @@ UART_HandleTypeDef huart2;
 /* Private variables ---------------------------------------------------------*/
 int16_t xyz[3]={0};
 int counter=0;
-int signal=0;
+int8_t signal=0;
 int Timecounter=0;
 int delayTime=0;
-int flag = 0;
-int avgx[100];
-int avgy[100];
-int avgcounter=0;
+int8_t flag = 0;
+int16_t avgx[100];
+int16_t avgy[100];
+int16_t avgcounter=0;
 struct _calibrate{
-	int x,y,z;
+	int16_t x,y,z;
 }calibrate;
+int8_t state=0;
+int16_t buttonCount = 0;
 
 /* USER CODE END PV */
 
@@ -92,13 +94,8 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
 	signal=0;
 	counter=0;
-  /* Prevent unused argument(s) compilation warning */
-  UNUSED(GPIO_Pin);
-  /* NOTE: This function Should not be modified, when the callback is needed,
-           the HAL_GPIO_EXTI_Callback could be implemented in the user file
-   */
 }
-int cal_avg(int* avg){
+int16_t cal_avg(int16_t* avg){
 	int sum=0;
 	for(int i = 0 ;i < 100 ;i++){
 		sum += avg[i];
@@ -140,15 +137,13 @@ int main(void)
 
   /* USER CODE BEGIN 2 */
   BSP_ACCELERO_Init();
+  calibrate.x = 0;
+  calibrate.y = 0;
+  calibrate.z = 0;
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  int state=0;
-  int buttonCount = 0;
-  calibrate.x = 0;
-  calibrate.y = 0;
-  calibrate.z = 0;
   while (1)
   {
   /* USER CODE END WHILE */
@@ -167,15 +162,16 @@ int main(void)
 	  	calibrate.z = xyz[2];
 	  }
 	  if(flag==0){continue;}
-	  	xyz[0] -= calibrate.x;
-	  	xyz[1] -= calibrate.y;
-	  	xyz[2] -= calibrate.z;
+
+	  xyz[0] -= calibrate.x;
+	  xyz[1] -= calibrate.y;
+	  xyz[2] -= calibrate.z;
 	  if(delayTime%500 == 0){
 		avgx[avgcounter]=xyz[0];
 		avgy[avgcounter]=xyz[1];
 		avgcounter++;
 	  }
-  	  if(delayTime == 0){
+  	  if(avgcounter == 99){
 	  	avgcounter=0;
 		int send_x=cal_avg(avgx);
 		int send_y=cal_avg(avgy);
@@ -202,7 +198,7 @@ int main(void)
 	  		if(state==0 || state==1){
 	  			QUAKE;
 	  		}
-	  			state=2;
+	  		state=2;
 	  	}
 	  	else{
 	  		HAL_GPIO_WritePin(GPIOD, GPIO_PIN_12,0);
@@ -239,7 +235,7 @@ int main(void)
 	  		HAL_GPIO_WritePin(GPIOD, GPIO_PIN_15,0);
 	  	}
 	 }
-	 if(Timecounter%DECAY_PERIOD==0){
+	 if(Timecounter % DECAY_PERIOD == 0){
 	  	 DECAY;
 	 }
 	 if(counter>TRIGGER_THRESHOLD){
