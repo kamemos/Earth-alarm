@@ -34,8 +34,6 @@ Drivers/STM32F4-Discovery/stm32f4_discovery_audio.o: \
  C:/Users/Benjamin/workspace/Acceralo2/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pwr.h \
  C:/Users/Benjamin/workspace/Acceralo2/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pwr_ex.h \
  C:/Users/Benjamin/workspace/Acceralo2/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_spi.h \
- C:/Users/Benjamin/workspace/Acceralo2/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim.h \
- C:/Users/Benjamin/workspace/Acceralo2/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim_ex.h \
  C:/Users/Benjamin/workspace/Acceralo2/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h \
  c:\users\benjamin\workspace\acceralo2\drivers\middlewares\st\stm32_audio\addons\pdm\inc\pdm2pcm_glo.h
 
@@ -106,10 +104,6 @@ C:/Users/Benjamin/workspace/Acceralo2/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx
 C:/Users/Benjamin/workspace/Acceralo2/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pwr_ex.h:
 
 C:/Users/Benjamin/workspace/Acceralo2/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_spi.h:
-
-C:/Users/Benjamin/workspace/Acceralo2/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim.h:
-
-C:/Users/Benjamin/workspace/Acceralo2/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim_ex.h:
 
 C:/Users/Benjamin/workspace/Acceralo2/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h:
 

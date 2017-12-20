@@ -55,8 +55,6 @@ I2S_HandleTypeDef hi2s3;
 
 SPI_HandleTypeDef hspi1;
 
-TIM_HandleTypeDef htim10;
-
 UART_HandleTypeDef huart2;
 
 /* USER CODE BEGIN PV */
@@ -83,7 +81,6 @@ static void MX_SPI1_Init(void);
 static void MX_I2C1_Init(void);
 static void MX_I2S3_Init(void);
 static void MX_USART2_UART_Init(void);
-static void MX_TIM10_Init(void);
 
 /* USER CODE BEGIN PFP */
 /* Private function prototypes -----------------------------------------------*/
@@ -107,15 +104,6 @@ int cal_avg(int* avg){
 		sum += avg[i];
 	}
 	return sum/100;
-}
-void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
-{
-	if(!flag)return;
-	int send_x=cal_avg(avgx);
-	int send_y=cal_avg(avgy);
-	char s[256];
-	sprintf(s,"%d/%d/%d/%d/%d/%d\r\n",xyz[0],xyz[1],xyz[2],send_x,send_y,signal);
-	HAL_UART_Transmit(&huart2,s,strlen(s),5000);
 }
 
 /* USER CODE END 0 */
@@ -149,11 +137,9 @@ int main(void)
   MX_I2C1_Init();
   MX_I2S3_Init();
   MX_USART2_UART_Init();
-  MX_TIM10_Init();
 
   /* USER CODE BEGIN 2 */
   BSP_ACCELERO_Init();
-  HAL_TIM_Base_Start_IT(&htim10);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -191,6 +177,11 @@ int main(void)
 	  }
   	  if(delayTime == 0){
 	  	avgcounter=0;
+		int send_x=cal_avg(avgx);
+		int send_y=cal_avg(avgy);
+		char s[256];
+		sprintf(s,"%d/%d/%d/%d/%d/%d\r\n",xyz[0],xyz[1],xyz[2],send_x,send_y,signal);
+		HAL_UART_Transmit(&huart2,s,strlen(s),5000);
 	  }
 	  if(abs(xyz[0])>abs(xyz[1])){
 	  	if(xyz[0]<=-MAGNITUDE_THRESHLOD){
@@ -400,38 +391,6 @@ static void MX_SPI1_Init(void)
   hspi1.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
   hspi1.Init.CRCPolynomial = 10;
   if (HAL_SPI_Init(&hspi1) != HAL_OK)
-  {
-    _Error_Handler(__FILE__, __LINE__);
-  }
-
-}
-
-/* TIM10 init function */
-static void MX_TIM10_Init(void)
-{
-
-  TIM_OC_InitTypeDef sConfigOC;
-
-  htim10.Instance = TIM10;
-  htim10.Init.Prescaler = 0;
-  htim10.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim10.Init.Period = 49999;
-  htim10.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
-  if (HAL_TIM_Base_Init(&htim10) != HAL_OK)
-  {
-    _Error_Handler(__FILE__, __LINE__);
-  }
-
-  if (HAL_TIM_OC_Init(&htim10) != HAL_OK)
-  {
-    _Error_Handler(__FILE__, __LINE__);
-  }
-
-  sConfigOC.OCMode = TIM_OCMODE_TIMING;
-  sConfigOC.Pulse = 0;
-  sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
-  sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
-  if (HAL_TIM_OC_ConfigChannel(&htim10, &sConfigOC, TIM_CHANNEL_1) != HAL_OK)
   {
     _Error_Handler(__FILE__, __LINE__);
   }
