@@ -33,8 +33,9 @@ const thing1 = "NodeMCU1";
     document.getElementById("x").innerHTML = "x = ".concat(data[0]);
     document.getElementById("y").innerHTML = "y = ".concat(data[1]);
     document.getElementById("z").innerHTML = "z = ".concat(data[2]);
-    document.getElementById("avg").innerHTML = "avg = ".concat(data[3]);
-    document.getElementById("status").innerHTML = "status = ".concat(data[4]);
+    document.getElementById("x_avg").innerHTML = "x_avg = ".concat(data[3]);
+    document.getElementById("y_avg").innerHTML = "y_avg = ".concat(data[4]);
+    document.getElementById("status").innerHTML = "status = ".concat(data[5]);
   });
 
   microgear.on('connected', function() {
@@ -75,7 +76,8 @@ const thing1 = "NodeMCU1";
       <h1 id="z">z</h1>
     </div>
     <div class="alert alert-secondary" role="alert">
-      <h1 id="avg">avg</h1>
+      <h1 id="x_avg">avg</h1>
+      <h1 id="y_avg">avg</h1>
     </div>
     <div class="alert alert-dark" role="alert">
       <h1 id="status">status</h1>

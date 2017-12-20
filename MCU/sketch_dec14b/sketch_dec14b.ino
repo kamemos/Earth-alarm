@@ -6,8 +6,8 @@
 #define D0 16  // USER LED Wake
 #define ledPin  D0        // the number of the LED pin
 
-const char* ssid     = "ZWL";
-const char* password = "55555555";
+const char* ssid     = "Kame";
+const char* password = "999999999";
 
 #define APPID   "random0"
 #define KEY     "OBWwsgWlYGrU3vB"
@@ -70,9 +70,12 @@ void loop()
        microgear.loop();
        //Serial.println("connected");
       // String data = "/" + String(a) + "/" + String(b);
-      microgear.chat(TargetWeb, "300/300/300/300/0");
+      //microgear.chat(TargetWeb, "300/300/300/300/0");
       if(Serial.available()>0){
-        Serial.println(String(Serial.readStringUntil('\n')));
+//        Serial.println(String(Serial.readStringUntil('\n')));
+        String s = String(Serial.readStringUntil('\n'));
+        Serial.println(s);
+        microgear.chat(TargetWeb, s);
       }
     }
    else 
